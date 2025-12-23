@@ -1,0 +1,12 @@
+services:
+  db:
+    image: postgres:17
+    container_name: hotel_db
+    environment:
+      POSTGRES_DB: AD_hotel
+      POSTGRES_USER: admin_user
+      POSTGRES_PASSWORD: admin123
+    ports:
+      - "5432:5432"
+    volumes:
+      - ./init.sql:/docker-entrypoint-initdb.d/init.sql
