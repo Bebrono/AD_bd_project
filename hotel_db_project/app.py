@@ -241,7 +241,7 @@ class MainApp(tk.Tk):
 
         self.nav_buttons = {}
         buttons = [
-            ("Dashboard","dashboard"),
+            ("Справочник","dashboard"),
             ("Номера/Типы","rooms"),
             ("Клиенты","clients"),
             ("Услуги","services"),
@@ -254,7 +254,6 @@ class MainApp(tk.Tk):
             self.nav_buttons[k] = b
 
         ttk.Separator(sidebar).pack(fill="x", pady=6)
-        ttk.Button(sidebar, text="Обновить все", command=self.refresh_all).pack(fill="x", pady=4)
         ttk.Button(sidebar, text="Выйти", command=self.on_exit).pack(fill="x", pady=4)
 
         self.frames = {}
@@ -295,17 +294,57 @@ class MainApp(tk.Tk):
     # ---------- Dashboard ----------
     def build_dashboard(self):
         f = ttk.Frame(self.content)
-        ttk.Label(f, text="Панель управления", style="Header.TLabel").pack(anchor="w", pady=(0,8))
-        info = ttk.Frame(f)
-        info.pack(fill="x", pady=8)
-        ttk.Label(info, text="Быстрые статистики:").grid(row=0, column=0, sticky="w")
-        stats_frame = ttk.Frame(f)
-        stats_frame.pack(fill="x", pady=8)
-        for i in range(4):
-            c = ttk.LabelFrame(stats_frame, text=f"Card {i+1}", padding=8)
-            c.pack(side="left", padx=8, ipadx=12, ipady=8)
-            ttk.Label(c, text="...").pack()
-        ttk.Button(f, text="Refresh counts", command=self.refresh_stats).pack(pady=8)
+
+        # Заголовок
+        ttk.Label(f, text="Справочник", style="Header.TLabel").pack(anchor="w", pady=(0, 8))
+
+        # Основной текст — человеческий, на 'Вы'
+        text = (
+            "Добро пожаловать в административную панель. Ниже краткие инструкции, куда нажать и что можно сделать:\n\n"
+            "• Номера/Типы — здесь Вы можете добавлять и удалять типы номеров, "
+            "создавать номера, смотреть их статус и цену.\n\n"
+            "• Клиенты — добавить нового клиента, удалить клиента, посмотреть предоплаты.\n\n"
+            "• Услуги — управлять дополнительными услугами (добавить, удалить, посмотреть список).\n\n"
+            "• Бронирования — создать бронь (мастер), удалить бронь, добавить услуги к броням и просмотреть детали.\n\n"
+            "• Отчёты — просмотреть свободные номера на выбранную дату и агрегированные расчёты по оплате.\n\n"
+            "Если нужно быстро перейти в раздел — используйте кнопки справа (в меню)."
+        )
+
+        # Текстовое поле только для чтения (скролл)
+        frm_txt = ttk.Frame(f)
+        frm_txt.pack(fill="both", expand=True)
+        txt = tk.Text(frm_txt, wrap="word", height=16)
+        txt.insert("1.0", text)
+        txt.configure(state="disabled")  # только чтение
+        txt.pack(side="left", fill="both", expand=True, padx=(0, 8), pady=4)
+
+        vsb = ttk.Scrollbar(frm_txt, orient="vertical", command=txt.yview)
+        txt.configure(yscrollcommand=vsb.set)
+        vsb.pack(side="left", fill="y")
+
+        # Кнопки-переходы (удобно для новичка)
+        btns = ttk.Frame(f)
+        btns.pack(fill="x", pady=(8, 0))
+        ttk.Label(btns, text="Быстрые переходы:").grid(row=0, column=0, sticky="w", padx=4)
+
+        ttk.Button(btns, text="Перейти в Номера/Типы", command=lambda: self.switch_to("rooms")).grid(row=1, column=0,
+                                                                                                     padx=4, pady=6,
+                                                                                                     sticky="w")
+        ttk.Button(btns, text="Перейти в Клиенты", command=lambda: self.switch_to("clients")).grid(row=1, column=1,
+                                                                                                   padx=4, pady=6,
+                                                                                                   sticky="w")
+        ttk.Button(btns, text="Перейти в Услуги", command=lambda: self.switch_to("services")).grid(row=1, column=2,
+                                                                                                   padx=4, pady=6,
+                                                                                                   sticky="w")
+        ttk.Button(btns, text="Перейти в Бронирования", command=lambda: self.switch_to("bookings")).grid(row=2,
+                                                                                                         column=0,
+                                                                                                         padx=4, pady=6,
+                                                                                                         sticky="w")
+        ttk.Button(btns, text="Перейти в Отчёты", command=lambda: self.switch_to("reports")).grid(row=2, column=1,
+                                                                                                  padx=4, pady=6,
+                                                                                                  sticky="w")
+
+        # Подвеска фрейма
         self.frames["dashboard"] = f
 
     def refresh_stats(self):
